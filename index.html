@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Let's Shopping</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #ff6b00;
+      --primary-dark: #e85d00;
+      --dark: #212529;
+    }
+
+    body {
+      background: #f4f5f7;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    /* ---------- SPLASH SCREEN ---------- */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ff6b00, #ff9248);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      transition: opacity .6s ease, visibility .6s ease;
+    }
+
+    #splash h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      animation: popIn 1s ease;
+    }
+
+    #splash .cart-icon {
+      font-size: 3.5rem;
+      margin-bottom: 10px;
+      animation: bounce 1.2s infinite;
+    }
+
+    #splash p {
+      margin-top: 10px;
+      font-size: 1rem;
+      opacity: .9;
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(.5);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    #splash.hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    #mainContent {
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+
+    #mainContent.show {
+      opacity: 1;
+    }
+
+    /* ---------- NAVBAR ---------- */
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--primary) !important;
+      font-size: 1.5rem;
+    }
+
+    .navbar-brand i {
+      color: var(--primary);
+    }
+
+    .icon-btn {
+      position: relative;
+      color: var(--dark);
+      font-size: 1.3rem;
+      margin-left: 18px;
+      text-decoration: none;
+    }
+
+    .badge-count {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      font-size: .65rem;
+      padding: 2px 6px;
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      background: linear-gradient(135deg, #212529, #343a40);
+      color: #fff;
+      padding: 50px 20px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .hero h2 {
+      font-weight: 700;
+    }
+
+    .hero span {
+      color: var(--primary);
+    }
+
+    /* ---------- CATEGORY PILLS ---------- */
+    .category-bar {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 10px 5px 20px;
+    }
+
+    .category-pill {
+      flex: 0 0 auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-size: .9rem;
+      white-space: nowrap;
+      transition: .2s;
+    }
+
+    .category-pill.active,
+    .category-pill:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* ---------- PRODUCT CARD ---------- */
+    .product-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #eee;
+      transition: transform .2s, box-shadow .2s;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+    }
+
+    .product-img-wrap {
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 170px;
+      position: relative;
+    }
+
+    .product-img-wrap i {
+      font-size: 4.5rem;
+      color: var(--primary);
+      opacity: .85;
+    }
+
+    .wishlist-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #fff;
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
+      color: #aaa;
+      font-size: 1rem;
+      transition: .2s;
+    }
+
+    .wishlist-icon.active {
+      color: #ff2d55;
+    }
+
+    .product-body {
+      padding: 14px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-cat {
+      font-size: .72rem;
+      color: #888;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .product-title {
+      font-size: .95rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      min-height: 42px;
+    }
+
+    .rating {
+      color: #ffb400;
+      font-size: .8rem;
+      margin-bottom: 6px;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--dark);
+    }
+
+    .old-price {
+      text-decoration: line-through;
+      color: #aaa;
+      font-size: .85rem;
+    }
+
+    .discount {
+      color: #1aa260;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+
+    .btn-cart {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: .85rem;
+    }
+
+    .btn-cart:hover {
+      background: var(--primary-dark);
+      color: #fff;
+    }
+
+    .btn-cart.added {
+      background: #1aa260;
+    }
+
+    .btn-buy {
+      background: var(--dark);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: .85rem;
+      margin-top: 6px;
+    }
+
+    .btn-buy:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    /* ---------- OFFCANVAS ---------- */
+    .cart-item,
+    .wishlist-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding: 12px 0;
+    }
+
+    .cart-item .cart-img,
+    .wishlist-item .cart-img {
+      width: 55px;
+      height: 55px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qty-control button {
+      width: 26px;
+      height: 26px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 5px;
+      line-height: 1;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #999;
+      padding: 40px 10px;
+    }
+
+    .empty-msg i {
+      font-size: 2.5rem;
+      color: #ddd;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      background: var(--dark);
+      color: #bbb;
+      padding: 30px 20px;
+      margin-top: 50px;
+      text-align: center;
+      font-size: .9rem;
+    }
+
+    footer span {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .toast-custom {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--dark);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 99999;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, .3);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: .3s;
+    }
+
+    .toast-custom.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= SPLASH SCREEN ================= -->
+  <div id="splash">
+    <i class="bi bi-bag-heart-fill cart-icon"></i>
+    <h1>Let's Shopping</h1>
+    <p>India's Smart Shopping Destination</p>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <div id="mainContent">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-bag-heart-fill"></i> Let's Shopping</a>
+        <div class="d-flex align-items-center ms-auto">
+          <a href="#" class="icon-btn" data-bs-toggle="offcanvas" data-bs-target="#wishlistPanel">
+            <i class="bi bi-heart"></i>
+            <span class="badge-count" id="wishlistCount">0</span>
+          </a>
+          <a href="#" class="icon-btn" data-bs-toggle="offcanvas" data-bs-target="#cartPanel">
+            <i class="bi bi-cart3"></i>
+            <span class="badge-count" id="cartCount">0</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="hero">
+      <h2>Best Deals on Electronics <span>Made for India 🇮🇳</span></h2>
+      <p class="mb-0">Headphones • Mobiles • Laptops • Washing Machines • AC • Fridge • PC Parts</p>
+    </div>
+
+    <div class="container">
+
+      <!-- CATEGORY FILTER -->
+      <div class="category-bar" id="categoryBar">
+        <div class="category-pill active" data-cat="all">All</div>
+        <div class="category-pill" data-cat="Headphones">Headphones</div>
+        <div class="category-pill" data-cat="Mobiles">Mobiles</div>
+        <div class="category-pill" data-cat="Laptops">Laptops</div>
+        <div class="category-pill" data-cat="Washing Machine">Washing Machine</div>
+        <div class="category-pill" data-cat="PC Parts">PC Parts</div>
+        <div class="category-pill" data-cat="AC">AC</div>
+        <div class="category-pill" data-cat="Fridge">Fridge</div>
+      </div>
+
+      <!-- PRODUCT GRID -->
+      <div class="row g-4 mb-5" id="productGrid"></div>
+    </div>
+
+    <footer>
+      <h5><span>Let's Shopping</span></h5>
+      <p class="mb-1">Your trusted online shopping partner in India.</p>
+      <small>&copy; 2026 Let's Shopping. All prices shown in Indian Rupees (₹).</small>
+    </footer>
+  </div>
+
+  <!-- ================= CART OFFCANVAS ================= -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="cartPanel">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title"><i class="bi bi-cart3"></i> My Cart</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+      <div id="cartItemsContainer" style="flex-grow:1; overflow-y:auto;"></div>
+      <div id="cartFooter" class="border-top pt-3 mt-2 d-none">
+        <div class="d-flex justify-content-between mb-2">
+          <span>Subtotal</span>
+          <strong id="cartSubtotal">₹0</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+          <span>Delivery</span>
+          <strong class="text-success">FREE</strong>
+        </div>
+        <button class="btn btn-cart w-100" onclick="placeOrder()">Place Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= WISHLIST OFFCANVAS ================= -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="wishlistPanel">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title"><i class="bi bi-heart"></i> My Wishlist</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body" id="wishlistItemsContainer"></div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-custom" id="toast"></div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /* ============================================================
+       SPLASH SCREEN — show for 2 seconds, then reveal main site
+       ============================================================ */
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash');
+        const main = document.getElementById('mainContent');
+        splash.classList.add('hide');
+        main.classList.add('show');
+        setTimeout(() => splash.remove(), 700);
+      }, 2000);
+    });
+
+    /* ============================================================
+       PRODUCT DATA — limited categories, prices in INR
+       ============================================================ */
+    const products = [
+      // Headphones
+      { id: 1, name: "boAt Rockerz 450 Bluetooth Headphone", cat: "Headphones", icon: "bi-headphones", price: 1299, oldPrice: 2990, rating: 4 },
+      { id: 2, name: "Sony WH-CH520 Wireless Headphone", cat: "Headphones", icon: "bi-headphones", price: 3499, oldPrice: 4990, rating: 5 },
+      { id: 3, name: "JBL Tune 760NC Headphone", cat: "Headphones", icon: "bi-headphones", price: 4999, oldPrice: 6999, rating: 4 },
+
+      // Mobiles
+      { id: 4, name: "Samsung Galaxy M14 5G (128GB)", cat: "Mobiles", icon: "bi-phone", price: 13499, oldPrice: 16999, rating: 4 },
+      { id: 5, name: "Redmi Note 13 Pro 5G (256GB)", cat: "Mobiles", icon: "bi-phone", price: 22999, oldPrice: 27999, rating: 5 },
+      { id: 6, name: "iQOO Z9 5G (128GB)", cat: "Mobiles", icon: "bi-phone", price: 17999, oldPrice: 21999, rating: 4 },
+
+      // Laptops
+      { id: 7, name: "HP 15s Ryzen 5 Laptop (8GB/512GB SSD)", cat: "Laptops", icon: "bi-laptop", price: 38990, oldPrice: 48990, rating: 4 },
+      { id: 8, name: "Lenovo IdeaPad Slim 3 i5 Laptop", cat: "Laptops", icon: "bi-laptop", price: 42990, oldPrice: 52990, rating: 5 },
+      { id: 9, name: "ASUS Vivobook 15 i3 Laptop", cat: "Laptops", icon: "bi-laptop", price: 31990, oldPrice: 39990, rating: 4 },
+
+      // Washing Machine
+      { id: 10, name: "LG 7Kg Fully Automatic Front Load", cat: "Washing Machine", icon: "bi-droplet-half", price: 24990, oldPrice: 31990, rating: 5 },
+      { id: 11, name: "Samsung 6.5Kg Semi Automatic", cat: "Washing Machine", icon: "bi-droplet-half", price: 11990, oldPrice: 15990, rating: 4 },
+      { id: 12, name: "Whirlpool 7Kg Top Load Fully Automatic", cat: "Washing Machine", icon: "bi-droplet-half", price: 15990, oldPrice: 19990, rating: 4 },
+
+      // PC Parts
+      { id: 13, name: "WD Blue 1TB SATA HDD", cat: "PC Parts", icon: "bi-hdd", price: 2799, oldPrice: 3499, rating: 4 },
+      { id: 14, name: "Corsair Vengeance 16GB DDR4 RAM", cat: "PC Parts", icon: "bi-cpu", price: 3299, oldPrice: 4199, rating: 5 },
+      { id: 15, name: "NVIDIA GTX 1650 4GB Graphics Card", cat: "PC Parts", icon: "bi-gpu-card", price: 13999, oldPrice: 16999, rating: 4 },
+
+      // AC
+      { id: 16, name: "Voltas 1.5 Ton 3 Star Split AC", cat: "AC", icon: "bi-snow", price: 31990, oldPrice: 39990, rating: 4 },
+      { id: 17, name: "LG 1 Ton 5 Star Inverter Split AC", cat: "AC", icon: "bi-snow", price: 36990, oldPrice: 44990, rating: 5 },
+      { id: 18, name: "Daikin 1.5 Ton Inverter Split AC", cat: "AC", icon: "bi-snow", price: 39990, oldPrice: 47990, rating: 5 },
+
+      // Fridge
+      { id: 19, name: "Samsung 192L Single Door Fridge", cat: "Fridge", icon: "bi-box-seam", price: 14990, oldPrice: 18990, rating: 4 },
+      { id: 20, name: "LG 260L Frost Free Double Door Fridge", cat: "Fridge", icon: "bi-box-seam", price: 26990, oldPrice: 32990, rating: 5 },
+      { id: 21, name: "Whirlpool 184L Direct Cool Fridge", cat: "Fridge", icon: "bi-box-seam", price: 13490, oldPrice: 16990, rating: 4 },
+    ];
+
+    /* ============================================================
+       STATE
+       ============================================================ */
+    let cart = [];      // {id, qty}
+    let wishlist = [];   // [id, id, ...]
+    let currentCategory = "all";
+
+    /* ============================================================
+       HELPERS
+       ============================================================ */
+    function formatINR(num) {
+      return "₹" + num.toLocaleString('en-IN');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function getProduct(id) {
+      return products.find(p => p.id === id);
+    }
+
+    /* ============================================================
+       RENDER PRODUCTS
+       ============================================================ */
+    function renderProducts() {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = "";
+
+      const list = currentCategory === "all"
+        ? products
+        : products.filter(p => p.cat === currentCategory);
+
+      list.forEach(p => {
+        const discountPct = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
+        const isWished = wishlist.includes(p.id);
+        const inCart = cart.find(c => c.id === p.id);
+
+        const stars = Array.from({ length: 5 }, (_, i) =>
+          `<i class="bi ${i < p.rating ? 'bi-star-fill' : 'bi-star'}"></i>`
+        ).join("");
+
+        const col = document.createElement('div');
+        col.className = "col-6 col-md-4 col-lg-3";
+        col.innerHTML = `
+      <div class="product-card">
+        <div class="product-img-wrap">
+          <div class="wishlist-icon ${isWished ? 'active' : ''}" onclick="toggleWishlist(${p.id})">
+            <i class="bi ${isWished ? 'bi-heart-fill' : 'bi-heart'}"></i>
+          </div>
+          <i class="bi ${p.icon}"></i>
+        </div>
+        <div class="product-body">
+          <div class="product-cat">${p.cat}</div>
+          <div class="product-title">${p.name}</div>
+          <div class="rating">${stars}</div>
+          <div class="price-row">
+            <span class="price">${formatINR(p.price)}</span>
+            <span class="old-price">${formatINR(p.oldPrice)}</span>
+            <span class="discount">${discountPct}% off</span>
+          </div>
+          <button class="btn-cart ${inCart ? 'added' : ''}" onclick="addToCart(${p.id})">
+            <i class="bi ${inCart ? 'bi-check-circle' : 'bi-cart-plus'}"></i>
+            ${inCart ? 'Added to Cart' : 'Add to Cart'}
+          </button>
+          <button class="btn-buy" onclick="buyNow(${p.id})">
+            <i class="bi bi-lightning-fill"></i> Order Now
+          </button>
+        </div>
+      </div>
+    `;
+        grid.appendChild(col);
+      });
+    }
+
+    /* ============================================================
+       CATEGORY FILTER
+       ============================================================ */
+    document.getElementById('categoryBar').addEventListener('click', (e) => {
+      const pill = e.target.closest('.category-pill');
+      if (!pill) return;
+      document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentCategory = pill.dataset.cat;
+      renderProducts();
+    });
+
+    /* ============================================================
+       CART LOGIC
+       ============================================================ */
+    function addToCart(id) {
+      const existing = cart.find(c => c.id === id);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ id, qty: 1 });
+      }
+      showToast("Added to cart!");
+      renderProducts();
+      renderCart();
+      updateCounts();
+    }
+
+    function removeFromCart(id) {
+      cart = cart.filter(c => c.id !== id);
+      renderProducts();
+      renderCart();
+      updateCounts();
+    }
+
+    function changeQty(id, delta) {
+      const item = cart.find(c => c.id === id);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) {
+        removeFromCart(id);
+      } else {
+        renderCart();
+        updateCounts();
+      }
+    }
+
+    function buyNow(id) {
+      const existing = cart.find(c => c.id === id);
+      if (!existing) {
+        cart.push({ id, qty: 1 });
+      }
+      renderCart();
+      updateCounts();
+      renderProducts();
+      const offcanvas = new bootstrap.Offcanvas('#cartPanel');
+      offcanvas.show();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartItemsContainer');
+      const footer = document.getElementById('cartFooter');
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+      <div class="empty-msg">
+        <i class="bi bi-cart-x"></i>
+        Your cart is empty.
+      </div>`;
+        footer.classList.add('d-none');
+        return;
+      }
+
+      let subtotal = 0;
+      container.innerHTML = cart.map(c => {
+        const p = getProduct(c.id);
+        subtotal += p.price * c.qty;
+        return `
+      <div class="cart-item">
+        <div class="cart-img"><i class="bi ${p.icon}"></i></div>
+        <div style="flex-grow:1;">
+          <div style="font-size:.88rem; font-weight:600;">${p.name}</div>
+          <div style="font-size:.85rem; color:#666;">${formatINR(p.price)}</div>
+          <div class="qty-control mt-1">
+            <button onclick="changeQty(${p.id}, -1)">−</button>
+            <span>${c.qty}</span>
+            <button onclick="changeQty(${p.id}, 1)">+</button>
+          </div>
+        </div>
+        <i class="bi bi-trash text-danger" style="cursor:pointer;" onclick="removeFromCart(${p.id})"></i>
+      </div>
+    `;
+      }).join("");
+
+      footer.classList.remove('d-none');
+      document.getElementById('cartSubtotal').textContent = formatINR(subtotal);
+    }
+
+    function placeOrder() {
+      if (cart.length === 0) return;
+      showToast("✅ Order placed successfully!");
+      cart = [];
+      renderCart();
+      renderProducts();
+      updateCounts();
+      const offcanvasEl = document.getElementById('cartPanel');
+      bootstrap.Offcanvas.getInstance(offcanvasEl)?.hide();
+    }
+
+    /* ============================================================
+       WISHLIST LOGIC
+       ============================================================ */
+    function toggleWishlist(id) {
+      if (wishlist.includes(id)) {
+        wishlist = wishlist.filter(w => w !== id);
+        showToast("Removed from wishlist");
+      } else {
+        wishlist.push(id);
+        showToast("Added to wishlist!");
+      }
+      renderProducts();
+      renderWishlist();
+      updateCounts();
+    }
+
+    functio
